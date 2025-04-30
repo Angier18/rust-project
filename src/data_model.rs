@@ -1,3 +1,7 @@
+use serde::Deserialize;
+
+#[derive(Debug,Deserialize)]
+
 pub struct OverdoseRecord {
     pub year: u16,
     pub drug_type: String,
