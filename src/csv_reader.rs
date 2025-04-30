@@ -14,8 +14,19 @@ pub fn read_records(path: &str) -> Result<Vec<OverdoseRecord>, Box<dyn Error>> {
     let rate_i  = headers.iter().position(|h| h == "ESTIMATE").unwrap();
 
     let mut records = Vec::new();
-    for result in reader.deserialize(){
-        let record: OverdoseRecord = result?;
-        records.push(record);}
+    for result in reader.records(){
+        let row: StringRecord = result?;
+        let rate_str = row.get(rate_i).unwrap().trim();
+        if rate_str.is_empty() {
+            continue;  // skip blank rates
+        }
+        let rec = OverdoseRecord {
+            year:           row.get(year_i).unwrap().parse()?,
+            drug_type:      row.get(label_i).unwrap().to_string(),
+            race_ethnicity: row.get(name_i).unwrap().to_string(),
+            rate:           rate_str.parse()?,
+        };
+        records.push(rec);
+    }
     Ok(records)
 }
