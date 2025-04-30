@@ -1,6 +1,6 @@
 use crate::data_model::OverdoseRecord;
-use csv::ReaderBuilder;
 use std::error::Error;
+use csv::{ReaderBuilder, StringRecord};
 
 pub fn read_records(path: &str) -> Result<Vec<OverdoseRecord>, Box<dyn Error>> {
     let mut reader = ReaderBuilder::new()
