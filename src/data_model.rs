@@ -3,8 +3,8 @@ use serde::Deserialize;
 #[derive(Debug,Deserialize, Clone)]
 
 pub struct OverdoseRecord {
-    pub year: u16,
+    pub YEAR: u16,
     pub drug_type: String,
-    pub race_ethnicity: String,
+    pub STUB_LABEL: String,
     pub rate: f64,
 }
