@@ -1,5 +1,5 @@
 use crate::data_model::OverdoseRecords;
-use std::collections:;HashMap;
+use std::collections::HashMap;
 
 pub fn filter_stimulants(records: &[OverdoseRecord]) -> Vec<OverdoseRecord>{
     records
