@@ -1,4 +1,4 @@
-use rust_project::{analysis.rs, csv_reader.rs};
+use rust_project::{analysis, csv_reader};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let all = csv_reader::read_records("data/Drug_overdose_death_rates__by_drug_type__sex__age__race__and_Hispanic_origin__United_States.csv")?;
