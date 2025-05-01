@@ -1,7 +1,6 @@
 use serde::Deserialize;
 
 #[derive(Debug,Deserialize, Clone)]
-
 pub struct OverdoseRecord {
     #[serde(rename = "YEAR")]
     pub year: u16,
