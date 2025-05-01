@@ -1,12 +1,16 @@
 use crate::data_model::OverdoseRecord;
 use std::collections::HashMap;
 
-pub fn filter_stimulants(records: &[OverdoseRecord]) -> Vec<OverdoseRecord>{
+pub fn filter_stimulants(records: &[OverdoseRecord]) -> Vec<OverdoseRecord> {
     records
-    .iter()
-    .filter(|r| r.drug_type.contains("Stimulants"))
-    .cloned()
-    .collect()
+        .iter()
+        .filter(|r| {
+            r.drug_type
+             .to_lowercase()
+             .contains("stimulant")
+        })
+        .cloned()
+        .collect()
 }
 
 pub fn rate_by_race_in_year(
