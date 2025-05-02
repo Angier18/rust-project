@@ -1,13 +1,12 @@
 use rust_project::{analysis, csv_reader};
+use rust_project::data_model::OverdoseRecord;
 use plotters::prelude::*;
 use plotters::style::full_palette::ORANGE;
 use std::collections::HashMap;
-use rust_project::data_model::OverdoseRecord;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let path = "data/Drug_overdose_death_rates__by_drug_type__sex__age__race__and_Hispanic_origin__United_States.csv";
     let all = csv_reader::read_records(path)?;
-
     let mut drug_types: Vec<_> = all.iter().map(|r| r.drug_type.clone()).collect();
     drug_types.sort();
     drug_types.dedup();
@@ -17,9 +16,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             .iter()
             .filter(|r| &r.drug_type == drug)
             .cloned()
-            .collect())?;
+            .collect::<Vec<_>>()
+        )?;
     }
-
     run_analysis_and_plot("All Drugs Combined", &all)?;
 
     Ok(())
@@ -28,14 +27,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 fn run_analysis_and_plot(
     label: &str,
     subset: &[OverdoseRecord],
-) -> Result<(), Box<dyn std::error::Error>>
+) -> Result<(), Box<dyn std::error::Error>> {
     println!("\n==== Analysis for: {} ====", label);
     if subset.is_empty() {
         println!("  No records for this category.");
         return Ok(());
     }
 
-    // Compute deltas
     let diffs = analysis::increase_since_2010(subset);
     if diffs.is_empty() {
         println!("  Not enough years of data to compute a Δ.");
@@ -52,7 +50,7 @@ fn run_analysis_and_plot(
     }
 
     if let Some(&(race, delta)) = sorted.first() {
-        println!("\n  🏆 Largest increase: {} at +{:.2}", race, delta);
+        println!("\n  Largest increase: {} at +{:.2}", race, delta);
     }
 
     let total: f64 = diffs.values().sum();
@@ -75,7 +73,7 @@ fn print_cluster(title: &str, bucket: &[(String, f64)]) {
     } else {
         println!();
         for (race, delta) in bucket {
-            println!("     {:<20} +{:.2}", race, delta);
+            println!("    • {:<20} +{:.2}", race, delta);
         }
     }
 }
