@@ -39,8 +39,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         if let Some(&(race, delta)) = sorted.first() {
             println!("\n  🏆 Largest increase: {} at +{:.2}", race, delta);
-            if delta > overall_best.1 {
-                overall_best = (race.to_string(), delta);
+            if *delta > overall_best.1 {
+                overall_best = (race.to_string(), *delta);
             }
         }
 
