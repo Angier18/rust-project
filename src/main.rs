@@ -25,8 +25,6 @@ fn plot_diff_for_drug(
         .replace(' ', "_")
         .replace(':', "")
         .replace('/', "_");
-    let filename = format!("charts/{}.png", name);
-
     let root = BitMapBackend::new(&filename, (1024, 768)).into_drawing_area();
     root.fill(&WHITE)?;
 
@@ -68,7 +66,6 @@ fn plot_diff_for_drug(
     }))?;
 
     root.present()?;
-    println!("  ▶ Chart saved to {}", filename);
     Ok(())
 }
 
@@ -107,6 +104,7 @@ fn run_analysis_and_plot(
 
     let (high, low): (Vec<_>, Vec<_>) =
         diffs.clone().into_iter().partition(|(_, v)| *v >= avg);
+
     print_cluster("Above average", &high);
     print_cluster("Below average", &low);
 
