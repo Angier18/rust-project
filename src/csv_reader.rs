@@ -1,6 +1,6 @@
 use crate::data_model::OverdoseRecord;
-use std::error::Error;
 use csv::{ReaderBuilder, StringRecord};
+use std::error::Error;
 
 pub fn read_records(path: &str) -> Result<Vec<OverdoseRecord>, Box<dyn Error>> {
     let mut reader = ReaderBuilder::new()
@@ -8,25 +8,35 @@ pub fn read_records(path: &str) -> Result<Vec<OverdoseRecord>, Box<dyn Error>> {
         .from_path(path)?;
 
     let headers = reader.headers()?.clone();
-    let year_i  = headers.iter().position(|h| h == "YEAR").unwrap();
+    let panel_i = headers.iter().position(|h| h == "PANEL").unwrap();
     let label_i = headers.iter().position(|h| h == "STUB_LABEL").unwrap();
-    let name_i  = headers.iter().position(|h| h == "STUB_NAME").unwrap();
+    let year_i  = headers.iter().position(|h| h == "YEAR").unwrap();
     let rate_i  = headers.iter().position(|h| h == "ESTIMATE").unwrap();
 
     let mut records = Vec::new();
-    for result in reader.records(){
+    for result in reader.records() {
         let row: StringRecord = result?;
-        let rate_str = row.get(rate_i).unwrap().trim();
-        if rate_str.is_empty() {
-            continue;  // skip blank rates
+
+        let year_str  = row.get(year_i).unwrap().trim();
+        let drug_str  = row.get(panel_i).unwrap().trim();
+        let race_str  = row.get(label_i).unwrap().trim();
+        let rate_str  = row.get(rate_i).unwrap().trim();
+
+        if year_str.is_empty()
+            || drug_str.is_empty()
+            || race_str.is_empty()
+            || rate_str.is_empty()
+        {
+            continue;
         }
         let rec = OverdoseRecord {
-            year:           row.get(year_i).unwrap().parse()?,
-            drug_type:      row.get(label_i).unwrap().to_string(),
-            race_ethnicity: row.get(name_i).unwrap().to_string(),
+            year:           year_str.parse()?,
+            drug_type:      drug_str.to_string(),
+            race_ethnicity: race_str.to_string(),
             rate:           rate_str.parse()?,
         };
         records.push(rec);
     }
+
     Ok(records)
 }
