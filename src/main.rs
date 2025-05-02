@@ -15,8 +15,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for (race, delta) in &sorted {
         println!("{:<30} {:+.2}", race, delta);
     }
-    if let Some((top, &val)) = sorted.first() {
-        println!("\n🏆 Largest increase: {} at +{:.2}", top, val);
+    if let Some((top, val)) = sorted.first() {
+    println!("\n Largest increase: {} at +{:.2}", top, *val);
     }
 
     let total: f64 = diff_map.values().sum();
