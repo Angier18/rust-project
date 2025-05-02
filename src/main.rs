@@ -4,22 +4,33 @@ use plotters::prelude::*;
 use plotters::style::full_palette::ORANGE;
 use std::collections::HashMap;
 
+fn is_demographic(label: &str) -> bool {
+    let lower = label.to_lowercase();
+    (lower.starts_with("male:") || lower.starts_with("female:"))
+        && !lower.chars().any(|c| c.is_ascii_digit())
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let path = "data/Drug_overdose_death_rates__by_drug_type__sex__age__race__and_Hispanic_origin__United_States.csv";
     let all = csv_reader::read_records(path)?;
-    let mut drug_types: Vec<_> = all.iter().map(|r| r.drug_type.clone()).collect();
-    drug_types.sort();
-    drug_types.dedup();
+    let demo_only: Vec<OverdoseRecord> = all
+        .into_iter()
+        .filter(|r| is_demographic(&r.race_ethnicity))
+        .collect();
 
-    for drug in &drug_types {
-        run_analysis_and_plot(drug, &all
+    let mut drugs: Vec<_> = demo_only.iter().map(|r| r.drug_type.clone()).collect();
+    drugs.sort();
+    drugs.dedup();
+
+    for drug in &drugs {
+        let subset: Vec<_> = demo_only
             .iter()
             .filter(|r| &r.drug_type == drug)
             .cloned()
-            .collect::<Vec<_>>()
-        )?;
+            .collect();
+        run_analysis_and_plot(drug, &subset)?;
     }
-    run_analysis_and_plot("All Drugs Combined", &all)?;
+    run_analysis_and_plot("All Drugs Combined", &demo_only)?;
 
     Ok(())
 }
@@ -30,32 +41,32 @@ fn run_analysis_and_plot(
 ) -> Result<(), Box<dyn std::error::Error>> {
     println!("\n==== Analysis for: {} ====", label);
     if subset.is_empty() {
-        println!("  No records for this category.");
+        println!("  No demographic records for this category.");
         return Ok(());
     }
 
     let diffs = analysis::increase_since_2010(subset);
     if diffs.is_empty() {
-        println!("  Not enough years of data to compute a Δ.");
+        println!("  Not enough years to compute a Δ.");
         return Ok(());
     }
 
     let mut sorted: Vec<(&String, &f64)> = diffs.iter().collect();
     sorted.sort_by(|a, b| b.1.partial_cmp(a.1).unwrap());
 
-    println!("  Race/Ethnicity                     Δ Rate since 2010");
-    println!("  -----------------------------------------------");
+    println!("  Race/Ethnicity                 Δ Rate since 2010");
+    println!("  ----------------------------------------------");
     for (race, delta) in &sorted {
         println!("  {:<30} {:+.2}", race, *delta);
     }
 
     if let Some(&(race, delta)) = sorted.first() {
-        println!("\n  Largest increase: {} at +{:.2}", race, delta);
+        println!("\n  🏆 Highest Δ: {} at +{:.2}", race, delta);
     }
 
     let total: f64 = diffs.values().sum();
     let avg = total / (diffs.len() as f64);
-    println!("\n  Average Δ for this category: +{:.2}", avg);
+    println!("\n  Average Δ: +{:.2}", avg);
 
     let (high, low): (Vec<_>, Vec<_>) =
         diffs.clone().into_iter().partition(|(_, v)| *v >= avg);
@@ -92,7 +103,6 @@ fn plot_diff_for_drug(
     let races: Vec<String> = diffs.keys().cloned().collect();
     let values: Vec<f64> = races.iter().map(|r| diffs[r]).collect();
     let n = races.len();
-
     let max_y = values.iter().cloned().fold(f64::MIN, f64::max).max(0.0);
     let min_y = values.iter().cloned().fold(f64::MAX, f64::min).min(0.0);
 
@@ -101,12 +111,15 @@ fn plot_diff_for_drug(
         .margin(20)
         .x_label_area_size(80)
         .y_label_area_size(60)
-        .build_cartesian_2d(0..n, min_y..max_y)?;
+        .build_cartesian_2d(0..=n, min_y..max_y)?;
 
     chart
         .configure_mesh()
-        .x_labels(n)
-        .x_label_formatter(&|i| races[*i].clone())
+        .x_labels(n + 1)
+        .x_label_formatter(&|idx| {
+            let i = *idx as usize;
+            if i < races.len() { races[i].clone() } else { "".into() }
+        })
         .x_desc("Race/Ethnicity")
         .y_desc("Δ Rate per 100,000")
         .label_style(("sans-serif", 15))
