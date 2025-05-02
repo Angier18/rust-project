@@ -2,6 +2,7 @@ use rust_project::{analysis, csv_reader};
 use plotters::prelude::*;
 use plotters::style::full_palette::ORANGE;
 use std::collections::HashMap;
+use rust_project::data_model::OverdoseRecord;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let path = "data/Drug_overdose_death_rates__by_drug_type__sex__age__race__and_Hispanic_origin__United_States.csv";
@@ -44,19 +45,16 @@ fn run_analysis_and_plot(
     let mut sorted: Vec<(&String, &f64)> = diffs.iter().collect();
     sorted.sort_by(|a, b| b.1.partial_cmp(a.1).unwrap());
 
-    //  table
     println!("  Race/Ethnicity                     Δ Rate since 2010");
     println!("  -----------------------------------------------");
     for (race, delta) in &sorted {
         println!("  {:<30} {:+.2}", race, *delta);
     }
 
-    // Top‐riser
     if let Some(&(race, delta)) = sorted.first() {
         println!("\n  🏆 Largest increase: {} at +{:.2}", race, delta);
     }
 
-    // Clustering around the mean
     let total: f64 = diffs.values().sum();
     let avg = total / (diffs.len() as f64);
     println!("\n  Average Δ for this category: +{:.2}", avg);
@@ -66,12 +64,10 @@ fn run_analysis_and_plot(
     print_cluster("Above average", &high);
     print_cluster("Below average", &low);
 
-    // Chart
     plot_diff_for_drug(&diffs, label)?;
     Ok(())
 }
 
-/// Prints a cluster bucket.
 fn print_cluster(title: &str, bucket: &[(String, f64)]) {
     print!("  {}:", title);
     if bucket.is_empty() {
@@ -84,13 +80,11 @@ fn print_cluster(title: &str, bucket: &[(String, f64)]) {
     }
 }
 
-/// Draws & saves a PNG for one Δ map, naming the file after `label`.
 fn plot_diff_for_drug(
     diffs: &HashMap<String, f64>,
     label: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
     std::fs::create_dir_all("charts")?;
-    // sanitize the label for a filename
     let name = label.replace(' ', "_").replace(':', "").replace('/', "_");
     let filename = format!("charts/{}.png", name);
 
