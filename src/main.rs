@@ -41,13 +41,13 @@ fn run_analysis_and_plot(
 ) -> Result<(), Box<dyn std::error::Error>> {
     println!("\n==== Analysis for: {} ====", label);
     if subset.is_empty() {
-        println!("  No demographic records for this category.");
+        println!("  No records for this category.");
         return Ok(());
     }
 
     let diffs = analysis::increase_since_2010(subset);
     if diffs.is_empty() {
-        println!("  Not enough years to compute a Δ.");
+        println!("  Not enough years of data to compute a Δ.");
         return Ok(());
     }
 
@@ -61,12 +61,12 @@ fn run_analysis_and_plot(
     }
 
     if let Some(&(race, delta)) = sorted.first() {
-        println!("\n  🏆 Highest Δ: {} at +{:.2}", race, delta);
+        println!("\n  🏆 Largest increase: {} at +{:.2}", race, delta);
     }
 
     let total: f64 = diffs.values().sum();
     let avg = total / (diffs.len() as f64);
-    println!("\n  Average Δ: +{:.2}", avg);
+    println!("\n  Average Δ for this category: +{:.2}", avg);
 
     let (high, low): (Vec<_>, Vec<_>) =
         diffs.clone().into_iter().partition(|(_, v)| *v >= avg);
@@ -77,24 +77,15 @@ fn run_analysis_and_plot(
     Ok(())
 }
 
-fn print_cluster(title: &str, bucket: &[(String, f64)]) {
-    print!("  {}:", title);
-    if bucket.is_empty() {
-        println!(" (none)");
-    } else {
-        println!();
-        for (race, delta) in bucket {
-            println!("    • {:<20} +{:.2}", race, delta);
-        }
-    }
-}
-
 fn plot_diff_for_drug(
     diffs: &HashMap<String, f64>,
     label: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
     std::fs::create_dir_all("charts")?;
-    let name = label.replace(' ', "_').replace(':', "").replace('/', "_");
+    let name = label
+        .replace(' ', "_")
+        .replace(':', "")
+        .replace('/', "_");
     let filename = format!("charts/{}.png", name);
 
     let root = BitMapBackend::new(&filename, (1024, 768)).into_drawing_area();
@@ -102,7 +93,9 @@ fn plot_diff_for_drug(
 
     let races: Vec<String> = diffs.keys().cloned().collect();
     let values: Vec<f64> = races.iter().map(|r| diffs[r]).collect();
-    let n = races.len() as i32;             // use i32 for x-axis
+    let n = races.len() as i32;
+
+    // Y-axis bounds
     let max_y = values.iter().cloned().fold(f64::MIN, f64::max).max(0.0);
     let min_y = values.iter().cloned().fold(f64::MAX, f64::min).min(0.0);
 
@@ -111,15 +104,15 @@ fn plot_diff_for_drug(
         .margin(20)
         .x_label_area_size(80)
         .y_label_area_size(60)
-        .build_cartesian_2d(0..n, min_y..max_y)?;  // now supported Ranged types
+        .build_cartesian_2d(0..n, min_y..max_y)?;
 
     chart
         .configure_mesh()
         .x_labels(n as usize)
         .x_label_formatter(&|x| {
-            let idx = *x as usize;
-            if idx < races.len() {
-                races[idx].clone()
+            let i = *x as usize;
+            if i < races.len() {
+                races[i].clone()
             } else {
                 String::new()
             }
