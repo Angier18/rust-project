@@ -27,8 +27,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 fn run_analysis_and_plot(
     label: &str,
-    subset: &[crate::data_model::OverdoseRecord],
-) -> Result<(), Box<dyn std::error::Error>> {
+    subset: &[OverdoseRecord],
+) -> Result<(), Box<dyn std::error::Error>>
     println!("\n==== Analysis for: {} ====", label);
     if subset.is_empty() {
         println!("  No records for this category.");
@@ -75,7 +75,7 @@ fn print_cluster(title: &str, bucket: &[(String, f64)]) {
     } else {
         println!();
         for (race, delta) in bucket {
-            println!("    • {:<20} +{:.2}", race, delta);
+            println!("     {:<20} +{:.2}", race, delta);
         }
     }
 }
