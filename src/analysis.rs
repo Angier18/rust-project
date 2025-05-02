@@ -1,4 +1,4 @@
-//! I wrote functions for the overdoserecords, first filter_by_keyword finds all the records where drug type contains a keyword, then we have the function increase since 2010 which does the math for chaing in ratae from 2010 to 2018 which is the lastest year, then giving us a map from race/ethnicity to change in rate.
+// I wrote functions for the overdoserecords, first filter_by_keyword finds all the records where drug type contains a keyword, then we have the function increase since 2010 which does the math for chaing in ratae from 2010 to 2018 which is the lastest year, then giving us a map from race/ethnicity to change in rate.
 use crate::data_model::OverdoseRecord;
 use std::collections::HashMap; // put the utilities needed
 
@@ -42,4 +42,4 @@ pub fn increase_since_2010(
         }
     }
     diff
-}} //here for each race/ethnicity we will compute the rate in the latest year (2018) - rate in 2010 which includesboth the 2010 baseline first we will group by recorsing all by race/ethnicity then funding the rate in 2010 if aby and finding the record with the max year > 2010 finally recording the computed differemce.
+} //here for each race/ethnicity we will compute the rate in the latest year (2018) - rate in 2010 which includesboth the 2010 baseline first we will group by recorsing all by race/ethnicity then funding the rate in 2010 if aby and finding the record with the max year > 2010 finally recording the computed differemce.
