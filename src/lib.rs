@@ -1,4 +1,4 @@
-
+//!here it reads the raw CSV data into overdoserecord stucts, has the test, helps main.rs, does the math for per-demograhic rate, and finally checks records.
 pub mod data_model;
 pub mod csv_reader;
 pub mod analysis;

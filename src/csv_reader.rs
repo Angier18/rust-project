@@ -1,13 +1,14 @@
+//!Here it reads the CSV file, looks at the header, skips blank rows - becasue it has no data, normalizes "all drug overdose" label, makes each row inoto an OverdoseRecord.
 use crate::data_model::OverdoseRecord;
 use csv::{ReaderBuilder, StringRecord};
-use std::error::Error;
+use std::error::Error; //I put the utilities needed for this mod
 
 pub fn read_records(path: &str) -> Result<Vec<OverdoseRecord>, Box<dyn Error>> {
-    let mut reader = ReaderBuilder::new()
+    let mut reader = ReaderBuilder::new()//I will open the CSV reader with header 
         .has_headers(true)
         .from_path(path)?;
 
-    let headers = reader.headers()?.clone();
+    let headers = reader.headers()?.clone(); //
     let panel_i = headers.iter().position(|h| h == "PANEL").unwrap();
     let label_i = headers.iter().position(|h| h == "STUB_LABEL").unwrap();
     let year_i  = headers.iter().position(|h| h == "YEAR").unwrap();

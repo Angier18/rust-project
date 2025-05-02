@@ -1,3 +1,4 @@
+//! I wrote functions for the overdoserecords, first filter_by_keyword finds all the records where drug type contains a keyword, then we have the function increase since 2010 which does the math for chaing in ratae from 2010 to 2018 which is the lastest year, then giving us a map from race/ethnicity to change in rate.
 use crate::data_model::OverdoseRecord;
 use std::collections::HashMap;
 
@@ -29,12 +30,11 @@ pub fn increase_since_2010(
     let mut years: Vec<u16> = records.iter().map(|r| r.year).collect();
     years.sort_unstable();
     years.dedup();
-    let latest = *years.last().expect("No years in data");
+    let latest = *years.last().expect("Nothing in data");
 
     let base   = rate_by_race_in_year(records, 2010);
     let latest = rate_by_race_in_year(records, latest);
 
-    // subtract
     let mut diff = HashMap::new();
     for (race, &lrate) in &latest {
         if let Some(&brate) = base.get(race) {

@@ -1,16 +1,8 @@
-use serde::Deserialize;
-
-#[derive(Debug,Deserialize, Clone)]
+//!In this mod I define each core part of my data type for my project, So I've called it OverdoseRecord and thats what adding what I need.
+#[derive(Debug, Clone)]
 pub struct OverdoseRecord {
-    #[serde(rename = "YEAR")]
     pub year: u16,
-
-    #[serde(rename = "STUB_LABEL")]
     pub drug_type: String,
-    
-    #[serde(rename = "STUB_NAME")]
     pub race_ethnicity: String,
-
-    #[serde(rename = "ESTIMATE")]
     pub rate: f64,
 }
