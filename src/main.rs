@@ -55,8 +55,7 @@ fn run_analysis_and_plot(
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let path = 
-      "data/Drug_overdose_death_rates__by_drug_type__sex__age__race__and_Hispanic_origin__United_States.csv";
+    let path = "data/Drug_overdose_death_rates__by_drug_type__sex__age__race__and_Hispanic_origin__United_States.csv";
     let all = csv_reader::read_records(path)?;
 
     let demo_only: Vec<OverdoseRecord> = all
@@ -68,8 +67,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         })
         .collect();
 
-    let mut drugs: Vec<_> =
-        demo_only.iter().map(|r| r.drug_type.clone()).collect();
+    let mut drugs: Vec<_> = demo_only.iter().map(|r| r.drug_type.clone()).collect();
     drugs.sort();
     drugs.dedup();
     for drug in &drugs {
