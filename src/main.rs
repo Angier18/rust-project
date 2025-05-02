@@ -4,9 +4,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let path = "data/Drug_overdose_death_rates__by_drug_type__sex__age__race__and_Hispanic_origin__United_States.csv";
     let all = csv_reader::read_records(path)?;
 
-    let stim = analysis::filter_by_keyword(&all, "stimulant");
-
+    let stim = analysis::filter_by_keyword(&all, "stimulant");if stim.is_empty() {
+    eprintln!("❗️ No records matched “stimulant”. \
+               Make sure your keyword matches one of:\n\
+               {}", 
+               all.iter()
+                  .map(|r| r.drug_type.clone())
+                  .collect::<std::collections::HashSet<_>>()
+                  .into_iter()
+                  .fold(String::new(), |acc, lbl| acc + "  • " + &lbl + "\n")
+    );
+    std::process::exit(1);
+    }
+    
     let diff_map = analysis::increase_since_2010(&stim);
+
     let mut sorted: Vec<_> = diff_map.iter().collect();
     sorted.sort_by(|a, b| b.1.partial_cmp(a.1).unwrap());
 
