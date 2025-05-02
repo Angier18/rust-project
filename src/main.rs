@@ -21,7 +21,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let total: f64 = diff_map.values().sum();
     let avg = total / (diff_map.len() as f64);
-    let (high, low): (Vec<_>, Vec<_>) = diff_map.into_iter().partition(|(_, &v)| v >= avg);
+    let (high, low): (Vec<_>, Vec<_>) = diff_map
+    .into_iter()
+    .partition(|(_, v)| *v >= avg);
 
     println!("\nAverage increase across groups: +{:.2}", avg);
     println!("Above-average cluster:");
